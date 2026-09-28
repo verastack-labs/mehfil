@@ -1,0 +1,729 @@
+@import "tailwindcss";
+
+/* ===========================================================================
+   SHARED TOKEN LAYER.
+
+   Everything between this banner and the next one is copied VERBATIM from
+   mehfil-app/app/globals.css, which is the single source of truth for the
+   Mehfil design system and where contrast is verified mechanically by
+   mehfil-app/scripts/check-contrast.mjs. That contrast gate does NOT exist in
+   this repo; the only gate here is scripts/check-tokens.mjs, which diffs this
+   block against the app's and checks nothing else.
+
+   It is duplicated rather than imported because the app repo is private and
+   this one is public, so a submodule would leak it and a published package is
+   overkill for one page. Copying verbatim keeps the two diffable: run
+   `pnpm check:tokens` with both repos checked out side by side and it fails
+   on any difference.
+
+   Do not edit this block here. Edit it in mehfil-app and copy it across.
+   =========================================================================== */
+@theme {
+  /* Surfaces - nothing is pure white, nothing is pure black. */
+  --color-background:            #F3E9DA;  /* cream, page base */
+  --color-secondary-background:  #FAF4EA;  /* warm off-white, raised cards */
+  --color-surface-sunken:        #E8DBC8;  /* deeper cream, inset and muted */
+
+  /* Ink - borders and text. Darkest value in the system. */
+  --color-border:           #1C120B;
+  --color-foreground:       #1C120B;
+  --color-foreground-muted: color-mix(in srgb, #1C120B 65%, transparent);
+
+  /* Accents. One dominant accent per screen area. */
+  --color-main:              #E8A33D;  /* saffron: default, active, selected */
+  --color-main-foreground:   #1C120B;  /* ink on saffron is 8.54:1 - AAA */
+  --color-ring:               #B93E29;  /* terracotta: focus/emphasis ring, matches border-ring */
+  --color-urgent:             #B93E29;  /* terracotta: live and urgent only */
+  --color-urgent-foreground:  #F3E9DA; /* cream on terracotta is 4.62:1 - AA.
+                                          Large-and-bold only, never body copy. */
+
+  /* Structure. Zero radius is deliberate and global. */
+  --radius-base: 0px;
+  --shadow-shadow:     4px 4px 0 0 #1C120B;
+  --shadow-prominent:  6px 6px 0 0 #1C120B;
+
+  /* Type - wired to next/font in app/layout.tsx */
+  --font-heading: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-base:    var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+}
+
+/* ===========================================================================
+   LANDING-ONLY ADDITIONS.
+
+   Values this surface needs that the product does not. Nothing above is
+   overridden; these only extend.
+   =========================================================================== */
+@theme {
+  /* A third ink weight, for hairline rules on paper. */
+  --color-ink-faint: color-mix(in srgb, #1C120B 22%, transparent);
+
+  /* A deeper shadow than the product uses, for the one notice that has to
+     read as lying on top of everything else on the board. */
+  --shadow-deep: 10px 10px 0 0 #1C120B;
+
+  /* A terracotta shadow. The brief sanctions colour on the shadow as a
+     premium accent, and it is the cheapest way to take weight out of a page
+     that would otherwise be ink borders over ink shadows all the way down. */
+  --shadow-warm: 6px 6px 0 0 #B93E29;
+
+  /* Avatar palettes. The product does not accept uploaded images: a user
+     picks a figure from a fixed catalogue, then a skin tone and an outfit
+     colour by index. These mirror the ranges declared in
+     mehfil-app/lib/avatars.mjs, and each pairing holds against a 3px ink
+     outline on cream. */
+  --color-skin-1: #F1C27D;
+  --color-skin-2: #E0AC69;
+  --color-skin-3: #C68642;
+  --color-skin-4: #8D5524;
+
+  --color-outfit-1: #2E6E6B;
+  --color-outfit-2: #7B4B8A;
+  --color-outfit-3: #3A5FA8;
+  --color-outfit-4: #B0572E;
+
+  /* One easing curve, so every authored moment on the page shares a hand. */
+  --ease-settle: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+    /* `clip` rather than `hidden`: hidden makes the element a scroll container,
+       which quietly breaks `position: sticky` in descendants. */
+    overflow-x: clip;
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-base);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+    font-synthesis-weight: none;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.025em;
+    line-height: 0.95;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  /* Display headings run terracotta rather than ink. At 4.62:1 on cream this
+     clears AA for normal text and comfortably clears it at display size, and
+     it is the single change that takes the most black mass off the page. The
+     design system's rule that terracotta never carries body copy still holds:
+     h3 and below stay ink, and every paragraph stays ink. */
+  h1, h2 { color: var(--color-urgent); }
+
+  p { margin: 0; }
+
+  /* One focus treatment everywhere. Terracotta reads on every surface in
+     the palette, which cream and saffron do not. */
+  :where(a, button, input, [tabindex]):focus-visible {
+    outline: 3px solid var(--color-ring);
+    outline-offset: 3px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+/* ===========================================================================
+   The board. One repeated object, a notice, and the things pinned near it.
+   Written as component classes rather than utility soup because these carry
+   real behaviour (tilt, swing origin, torn tabs) that utilities cannot hold.
+   =========================================================================== */
+@layer components {
+
+  .skip-link {
+    position: absolute;
+    left: 1rem;
+    top: -6rem;
+    z-index: 100;
+    background: var(--color-foreground);
+    color: var(--color-background);
+    font-family: var(--font-heading);
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    transition: top 180ms var(--ease-settle);
+  }
+  .skip-link:focus { top: 1rem; }
+
+  .shell {
+    width: min(1180px, 100% - 3rem);
+    margin-inline: auto;
+  }
+
+  /* --- notice ------------------------------------------------------------ */
+
+  .notice {
+    --tilt: 0deg;
+    position: relative;
+    background: var(--color-secondary-background);
+    border: 3px solid var(--color-border);
+    box-shadow: var(--shadow-prominent);
+    padding: 2rem;
+    rotate: var(--tilt);
+    transition: rotate 420ms var(--ease-settle), box-shadow 220ms var(--ease-settle);
+  }
+  .notice-deep { box-shadow: var(--shadow-deep); }
+  .notice-flat { box-shadow: var(--shadow-shadow); }
+  .notice-warm { box-shadow: var(--shadow-warm); }
+  .notice-sunken { background: var(--color-surface-sunken); }
+
+  .notice > .pin {
+    position: absolute;
+    top: -16px;
+    left: 50%;
+    translate: -50% 0;
+    width: 30px;
+    height: 30px;
+    z-index: 3;
+  }
+  .notice-pin-left > .pin { left: 2rem; translate: 0 0; }
+
+  .swing {
+    cursor: grab;
+    transform-origin: 50% -10px;
+    touch-action: pan-y;
+  }
+  .notice-pin-left.swing { transform-origin: 2rem -10px; }
+  .swing:active { cursor: grabbing; }
+  .swing.is-dragging { transition: none; box-shadow: var(--shadow-deep); }
+
+  /* --- type helpers ------------------------------------------------------ */
+
+  .label {
+    font-family: var(--font-heading);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--color-foreground-muted);
+  }
+
+  .stamp {
+    display: inline-block;
+    font-family: var(--font-heading);
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    border: 2px solid var(--color-border);
+    padding: 0.2rem 0.5rem;
+    background: var(--color-background);
+  }
+  .stamp-live {
+    background: var(--color-urgent);
+    border-color: var(--color-urgent);
+    color: var(--color-urgent-foreground);
+  }
+  .stamp-demo {
+    border-style: dashed;
+    color: var(--color-foreground-muted);
+    background: transparent;
+  }
+
+  /* --- button: the app's press-into-shadow move --------------------------- */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    padding: 1rem 1.5rem;
+    border: 3px solid var(--color-border);
+    background: var(--color-secondary-background);
+    color: var(--color-foreground);
+    box-shadow: var(--shadow-shadow);
+    text-decoration: none;
+    cursor: pointer;
+    transition: translate 140ms var(--ease-settle),
+                box-shadow 140ms var(--ease-settle),
+                background 140ms var(--ease-settle);
+  }
+  .btn:hover { translate: 4px 4px; box-shadow: 0 0 0 0 var(--color-border); }
+  .btn:active { translate: 4px 4px; }
+  .btn-primary { background: var(--color-main); }
+  .btn-ghost { background: transparent; box-shadow: none; }
+  .btn-ghost:hover { translate: 0 0; background: var(--color-surface-sunken); }
+  .btn[aria-pressed="true"] { background: var(--color-main); }
+  .btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.55;
+    translate: 0 0;
+    box-shadow: var(--shadow-shadow);
+  }
+
+  /* --- brand plate -------------------------------------------------------- */
+
+  .plate {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    background: var(--color-urgent);
+    color: var(--color-urgent-foreground);
+    padding: 1rem 2rem;
+    box-shadow: var(--shadow-shadow);
+  }
+  .plate b {
+    font-family: var(--font-heading);
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+  .plate span {
+    font-size: 0.82rem;
+    color: color-mix(in srgb, var(--color-urgent-foreground) 82%, transparent);
+  }
+
+  /* --- session notice ----------------------------------------------------- */
+
+  /* Colour here follows the project's own draft screens: a dark header bar,
+     a dark session block with a saffron label, and saffron fills on the people
+     who have said yes. Paper carries the structure; the insets carry the heat. */
+  .session { padding: 0; }
+  .session-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem 2rem;
+    background: var(--color-foreground);
+    color: var(--color-background);
+    border-block-end: 3px solid var(--color-border);
+  }
+  .session-top .label {
+    color: color-mix(in srgb, var(--color-background) 78%, transparent);
+  }
+  .session-body { padding: 2rem; }
+  .session-what {
+    font-family: var(--font-heading);
+    font-size: clamp(2.5rem, 7vw, 3.5rem);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: -0.03em;
+    line-height: 0.9;
+  }
+  /* The clock sits in an ink inset with a saffron label, the way the draft's
+     session block does it. The countdown is saffron rather than terracotta
+     because terracotta on ink is only 3.4:1, which fails for text this size;
+     saffron on ink is 8.54:1. */
+  .session-clock {
+    margin-block-start: 1.5rem;
+    background: var(--color-foreground);
+    border: 3px solid var(--color-border);
+    padding: 1.25rem 1.5rem;
+  }
+  .session-clock .label { color: var(--color-main); }
+  .session-when {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block-start: 0.35rem;
+    font-family: var(--font-heading);
+    font-size: 1.85rem;
+    font-weight: 700;
+    color: var(--color-background);
+    font-variant-numeric: tabular-nums;
+  }
+  .countdown {
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-main);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .who {
+    margin-block-start: 2rem;
+    padding-block-start: 1.5rem;
+    border-block-start: 2px solid var(--color-ink-faint);
+  }
+  .who-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-block-start: 1rem;
+    list-style: none;
+    padding: 0;
+  }
+  /* Saffron fill means "coming", paper means "later". Fill carries the state
+     rather than opacity, so a later row stays perfectly legible instead of
+     being dimmed to 45 percent. */
+  .who-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    background: var(--color-main);
+    border: 2px solid var(--color-border);
+    box-shadow: 3px 3px 0 0 var(--color-border);
+    padding: 0.25rem 0.7rem 0.25rem 0.25rem;
+  }
+  .who-list li.is-out {
+    background: var(--color-secondary-background);
+    color: var(--color-foreground-muted);
+    font-weight: 500;
+  }
+  .who-list li.is-you { outline: 3px solid var(--color-urgent); outline-offset: 2px; }
+  .avatar { width: 30px; height: 30px; flex: none; display: block; }
+
+  .session-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-block-start: 2rem;
+  }
+
+  /* --- rituals ------------------------------------------------------------ */
+
+  .rituals {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 3rem 2rem;
+    align-items: start;
+  }
+  .ritual { display: flex; flex-direction: column; gap: 1.5rem; }
+  .ritual-art {
+    display: grid;
+    place-items: center;
+    background: var(--color-surface-sunken);
+    border: 3px solid var(--color-border);
+    padding: 2rem;
+    min-height: 160px;
+  }
+  .ritual-art svg { width: 100%; max-width: 132px; height: auto; display: block; }
+  .ritual-wide { grid-column: span 3; }
+  .ritual-wide .ritual-art { min-height: 220px; }
+  .ritual-wide .ritual-art svg { max-width: 176px; }
+  .ritual-third { grid-column: span 3; }
+  .ritual-half { grid-column: span 2; }
+
+  /* --- the rule of one ---------------------------------------------------- */
+
+  .stack { position: relative; min-height: 400px; }
+  .stack .notice { position: absolute; inset-inline: 0; padding: 1.5rem; }
+  .stack-old {
+    background: var(--color-surface-sunken);
+    box-shadow: var(--shadow-shadow);
+    opacity: 0.75;
+  }
+  .struck { text-decoration: line-through; text-decoration-thickness: 3px; }
+
+  /* --- tear-off tabs ------------------------------------------------------ */
+
+  .tabs {
+    display: flex;
+    border-block-start: 3px dashed var(--color-ink-faint);
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+  .tabs li { flex: 1 1 0; display: flex; }
+  .tab {
+    flex: 1 1 auto;
+    border: 0;
+    border-inline-start: 2px dashed var(--color-ink-faint);
+    background: var(--color-secondary-background);
+    color: var(--color-foreground);
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    padding: 1.5rem 0;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: translate 200ms var(--ease-settle), background 200ms var(--ease-settle);
+  }
+  .tabs li:first-child .tab { border-inline-start: 0; }
+  .tab:hover, .tab:focus-visible { translate: 0 6px; background: var(--color-main); }
+  .tab.is-torn { animation: tear 520ms var(--ease-settle) forwards; pointer-events: none; }
+
+  @keyframes tear {
+    to { translate: 0 90px; rotate: -8deg; opacity: 0; }
+  }
+
+  /* --- waitlist form ------------------------------------------------------ */
+
+  .signup { display: flex; gap: 1rem; margin-block-start: 3rem; text-align: start; }
+  .signup-field { flex: 1 1 auto; }
+  .signup input {
+    width: 100%;
+    font-family: var(--font-base);
+    font-size: 1rem;
+    padding: 1rem 1.5rem;
+    background: var(--color-secondary-background);
+    color: var(--color-foreground);
+    border: 3px solid var(--color-border);
+    border-radius: var(--radius-base);
+    box-shadow: var(--shadow-shadow);
+  }
+  .signup input::placeholder { color: var(--color-foreground-muted); }
+  .signup input[aria-invalid="true"] {
+    border-color: var(--color-urgent);
+    box-shadow: 4px 4px 0 0 var(--color-urgent);
+  }
+
+  .formmsg { margin-block-start: 1rem; font-size: 0.9rem; min-height: 1.4em; }
+  .formmsg[data-tone="error"] { color: var(--color-urgent); font-weight: 600; }
+  .formmsg[data-tone="ok"] { color: var(--color-foreground); font-weight: 600; }
+
+  .honest {
+    margin-block-start: 3rem;
+    padding: 1.5rem;
+    border: 2px dashed var(--color-ink-faint);
+    color: var(--color-foreground-muted);
+    font-size: 0.92rem;
+    text-align: start;
+  }
+
+  /* --- the cycling word ---------------------------------------------------
+     An odometer, not a fade. The outgoing word rolls up and out of the slot
+     while the incoming word rolls up into it, so there is ink in the slot at
+     every instant. The first version faded each letter in from zero opacity on
+     a stagger, which left the headline entirely blank for roughly a third of
+     every cycle, in the first viewport of a page whose job is persuasion.
+
+     A hidden copy of the longest word sets the width, so the question mark
+     after the slot never moves. */
+
+  .cycle {
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    vertical-align: bottom;
+  }
+  /* line-height 1, not the h1's 0.95. A letter is translated by its own box
+     height to leave the slot, so a box shorter than the glyph leaves a sliver
+     of the outgoing word visible above the clip. */
+  .cycle-measure { visibility: hidden; line-height: 1; }
+  .cycle-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+  }
+  .cycle-letter { display: inline-block; white-space: pre; line-height: 1; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cycle-in .cycle-letter { animation: letter-in 380ms var(--ease-settle) both; }
+    .cycle-out .cycle-letter { animation: letter-out 380ms var(--ease-settle) both; }
+  }
+
+  @keyframes letter-in {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  @keyframes letter-out {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-100%); }
+  }
+
+  /* --- call a mehfil: the creation flow, working -------------------------
+     Vocabulary lifted from the project's own draft screen 05: quick-pick chips
+     that fill saffron when selected, an ink readout panel with a saffron label
+     the way the draft's session block does it, and one primary action in ink
+     carrying a terracotta shadow, which is the brief's "colour on the shadow
+     of a dark element" note used exactly where the draft used it. */
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block-start: 1rem;
+  }
+  .chip {
+    flex: 1 1 auto;
+    min-width: 6.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.8rem 1rem;
+    border: 3px solid var(--color-border);
+    background: var(--color-secondary-background);
+    color: var(--color-foreground);
+    box-shadow: var(--shadow-shadow);
+    cursor: pointer;
+    transition: translate 140ms var(--ease-settle),
+                box-shadow 140ms var(--ease-settle),
+                background 140ms var(--ease-settle);
+  }
+  .chip:hover { translate: 4px 4px; box-shadow: 0 0 0 0 var(--color-border); }
+  .chip[aria-pressed="true"] { background: var(--color-main); }
+
+  .rule-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-block-start: 2rem;
+  }
+  .rule-label::before,
+  .rule-label::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 2px;
+    background: var(--color-ink-faint);
+  }
+  .rule-label span {
+    font-family: var(--font-heading);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-foreground-muted);
+    white-space: nowrap;
+  }
+
+  .readout {
+    margin-block-start: 2rem;
+    background: var(--color-foreground);
+    border: 3px solid var(--color-border);
+    padding: 1.5rem;
+  }
+  .readout-label { color: var(--color-main); }
+  .readout-time {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(2.25rem, 6vw, 3rem);
+    line-height: 1;
+    margin-block-start: 0.5rem;
+    color: var(--color-background);
+    font-variant-numeric: tabular-nums;
+  }
+  .readout-rel {
+    margin-block-start: 0.5rem;
+    font-size: 0.9rem;
+    color: color-mix(in srgb, var(--color-background) 72%, transparent);
+  }
+
+  .daytoggle { display: flex; gap: 0.75rem; margin-block-start: 1.5rem; }
+  .dayopt {
+    flex: 1 1 0;
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid var(--color-border);
+    background: transparent;
+    color: var(--color-foreground);
+    cursor: pointer;
+    transition: background 140ms var(--ease-settle), color 140ms var(--ease-settle);
+  }
+  .dayopt[aria-pressed="true"] {
+    background: var(--color-foreground);
+    color: var(--color-background);
+  }
+
+  /* The primary action of the draft screen: ink, with terracotta underneath. */
+  .btn-ink {
+    background: var(--color-foreground);
+    color: var(--color-background);
+    box-shadow: var(--shadow-warm);
+  }
+  .btn-ink:hover { translate: 6px 6px; box-shadow: 0 0 0 0 var(--color-urgent); }
+
+  .boardspace { display: grid; min-height: 26rem; align-content: center; }
+  .boardempty {
+    border: 3px dashed var(--color-ink-faint);
+    padding: 3rem 2rem;
+    text-align: center;
+    display: grid;
+    justify-items: center;
+  }
+
+  .dropped-time {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 7vw, 3.5rem);
+    line-height: 0.95;
+    margin-block-start: 0.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .dropped-rel {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-urgent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* A notice that has just been put up overshoots and settles, the way paper
+       does when it is pushed onto a pin. Translate and opacity only: `rotate`
+       belongs to the drag system and nothing else may touch it. */
+    .dropped { animation: drop-in 560ms var(--ease-settle) backwards; }
+    @keyframes drop-in {
+      from { translate: 0 -36px; opacity: 0; }
+      60%  { translate: 0 6px;   opacity: 1; }
+      to   { translate: 0 0;     opacity: 1; }
+    }
+  }
+
+  /* --- the one authored entrance ------------------------------------------ */
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* The entrance moves and fades. It deliberately does NOT rotate.
+
+       Two separate bugs came from letting it. A CSS animation outranks inline
+       styles in the cascade, so the drag handler's `el.style.rotate` was
+       silently ignored on every notice that animates in. And a rotated
+       element's bounding box is wider than the element, so three degrees on a
+       tall notice widened the page by 37px and produced a horizontal
+       scrollbar. Both vanish once `rotate` has exactly one owner, which is the
+       tilt-and-drag system. */
+    .pinup { animation: pinup 620ms var(--ease-settle) backwards; }
+
+    @keyframes pinup {
+      from { translate: 0 -16px; opacity: 0; }
+      to   { translate: 0 0;     opacity: 1; }
+    }
+  }
+}
+
+/* ===========================================================================
+   Responsive. Tilt drops to zero on narrow screens: a rotated notice in a
+   single column reads as a rendering mistake rather than as pinned paper.
+   =========================================================================== */
+@media (max-width: 960px) {
+  .rituals { grid-template-columns: repeat(2, 1fr); }
+  .ritual-wide, .ritual-third, .ritual-half { grid-column: span 2; }
+}
+
+@media (max-width: 640px) {
+  .notice { --tilt: 0deg !important; padding: 1.5rem; }
+  .swing { cursor: default; }
+  .rituals { grid-template-columns: 1fr; }
+  .ritual-wide, .ritual-third, .ritual-half { grid-column: span 1; }
+  .signup { flex-direction: column; }
+  .signup .btn { width: 100%; }
+  .session-actions { grid-template-columns: 1fr; }
+  .plate { flex-direction: column; gap: 0.5rem; align-items: flex-start; }
+  .stack { min-height: 380px; }
+}
