@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, type OutfitColor, type SkinTone } from "./Avatar";
 import { Pin } from "./Pin";
 import { SwingNotice } from "./SwingNotice";
+import { formatTime, useQuantisedNow } from "./useNow";
 
 /**
  * The product's own artifact, working, on a marketing page.
@@ -82,43 +83,12 @@ const SESSIONS: readonly DemoSession[] = [
   },
 ];
 
-const TICK_MS = 20_000;
 const CYCLE_MS = 6_500;
 
 /* Evaluated once when this module loads. On the client that is page load, which
    is the base every countdown is measured from. It is a module constant rather
    than a call inside render, because reading a clock during render is impure. */
 const LOADED_AT = Date.now();
-
-/* Intl inserts a narrow no-break space before AM/PM in some locales. Named
-   rather than pasted, because an invisible character inside a string literal is
-   unreadable and the next person deletes it by accident. */
-const NARROW_NBSP = String.fromCharCode(0x202f);
-
-const formatTime = (ms: number) =>
-  new Date(ms)
-    .toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })
-    .split(NARROW_NBSP)
-    .join(" ");
-
-/**
- * The current time, quantised to the tick, or null on the server.
- *
- * `useSyncExternalStore` rather than state plus an effect: it models a server
- * snapshot and a client snapshot explicitly, which is the real shape of this
- * problem, and it keeps the clock read out of render, which has to stay pure.
- * The snapshot is a number so React can compare it by value between ticks.
- */
-function useQuantisedNow(): number | null {
-  return useSyncExternalStore(
-    (onStoreChange) => {
-      const id = window.setInterval(onStoreChange, TICK_MS);
-      return () => window.clearInterval(id);
-    },
-    () => Math.floor(Date.now() / TICK_MS) * TICK_MS,
-    () => null,
-  );
-}
 
 export function SessionNotice() {
   const [index, setIndex] = useState(0);

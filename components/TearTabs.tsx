@@ -46,7 +46,7 @@ export function TearTabs({ code }: { code: string }) {
     }
 
     if (torn.size + 1 >= TAB_COUNT) {
-      say("That was the last tab. An admin can print a fresh code.");
+      say("That was the last tab. The code can be regenerated for a fresh set.");
       return;
     }
 
@@ -67,18 +67,33 @@ export function TearTabs({ code }: { code: string }) {
         {message}
       </p>
       <ul className="tabs">
-        {Array.from({ length: TAB_COUNT }, (_, index) => (
-          <li key={index}>
-            <button
-              type="button"
-              className={`tab ${torn.has(index) ? "is-torn" : ""}`}
-              onClick={() => tear(index)}
-              aria-label={`Tear off the invite code ${code}`}
-            >
-              {code}
-            </button>
-          </li>
-        ))}
+        {Array.from({ length: TAB_COUNT }, (_, index) => {
+          /* Only the first tab is a real control. Eight buttons with identical
+             accessible names is eight identical stops in the tab order saying
+             the same thing, and a torn tab animated to zero opacity was still
+             focusable and still firing. The rest stay as the visual fringe,
+             clickable by mouse, invisible to the keyboard and to assistive
+             technology. */
+          const isTorn = torn.has(index);
+          const isPrimary = index === 0;
+          return (
+            <li key={index}>
+              <button
+                type="button"
+                className={`tab ${isTorn ? "is-torn" : ""}`}
+                onClick={() => tear(index)}
+                disabled={isTorn}
+                aria-label={
+                  isPrimary ? `Tear off the invite code ${code}` : undefined
+                }
+                aria-hidden={isPrimary ? undefined : true}
+                tabIndex={isPrimary ? undefined : -1}
+              >
+                {code}
+              </button>
+            </li>
+          );
+        })}
       </ul>
     </>
   );

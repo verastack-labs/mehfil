@@ -475,24 +475,182 @@
   }
 
   /* --- the cycling word ---------------------------------------------------
-     Letters roll in from below rather than fading, because a board that flips
-     its letters is a departure board, the same object family as the notice
-     board this page is built from. */
+     An odometer, not a fade. The outgoing word rolls up and out of the slot
+     while the incoming word rolls up into it, so there is ink in the slot at
+     every instant. The first version faded each letter in from zero opacity on
+     a stagger, which left the headline entirely blank for roughly a third of
+     every cycle, in the first viewport of a page whose job is persuasion.
+
+     A hidden copy of the longest word sets the width, so the question mark
+     after the slot never moves. */
 
   .cycle {
-    display: inline-flex;
+    position: relative;
+    display: inline-block;
     overflow: hidden;
     vertical-align: bottom;
   }
-  .cycle-letter {
-    display: inline-block;
-    white-space: pre;
-    animation: letter-roll 460ms var(--ease-settle) both;
+  .cycle-measure { visibility: hidden; }
+  .cycle-layer {
+    position: absolute;
+    inset: 0;
+    display: flex;
+  }
+  .cycle-letter { display: inline-block; white-space: pre; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .cycle-in .cycle-letter { animation: letter-in 380ms var(--ease-settle) both; }
+    .cycle-out .cycle-letter { animation: letter-out 380ms var(--ease-settle) both; }
   }
 
-  @keyframes letter-roll {
-    from { transform: translateY(0.9em); opacity: 0; }
-    to   { transform: translateY(0);     opacity: 1; }
+  @keyframes letter-in {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  @keyframes letter-out {
+    from { transform: translateY(0); }
+    to   { transform: translateY(-100%); }
+  }
+
+  /* --- call a mehfil: the creation flow, working -------------------------
+     Vocabulary lifted from the project's own draft screen 05: quick-pick chips
+     that fill saffron when selected, an ink readout panel with a saffron label
+     the way the draft's session block does it, and one primary action in ink
+     carrying a terracotta shadow, which is the brief's "colour on the shadow
+     of a dark element" note used exactly where the draft used it. */
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block-start: 1rem;
+  }
+  .chip {
+    flex: 1 1 auto;
+    min-width: 6.5rem;
+    font-family: var(--font-heading);
+    font-size: 0.95rem;
+    font-weight: 700;
+    padding: 0.8rem 1rem;
+    border: 3px solid var(--color-border);
+    background: var(--color-secondary-background);
+    color: var(--color-foreground);
+    box-shadow: var(--shadow-shadow);
+    cursor: pointer;
+    transition: translate 140ms var(--ease-settle),
+                box-shadow 140ms var(--ease-settle),
+                background 140ms var(--ease-settle);
+  }
+  .chip:hover { translate: 4px 4px; box-shadow: 0 0 0 0 var(--color-border); }
+  .chip[aria-pressed="true"] { background: var(--color-main); }
+
+  .rule-label {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-block-start: 2rem;
+  }
+  .rule-label::before,
+  .rule-label::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 2px;
+    background: var(--color-ink-faint);
+  }
+  .rule-label span {
+    font-family: var(--font-heading);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-foreground-muted);
+    white-space: nowrap;
+  }
+
+  .readout {
+    margin-block-start: 2rem;
+    background: var(--color-foreground);
+    border: 3px solid var(--color-border);
+    padding: 1.5rem;
+  }
+  .readout-label { color: var(--color-main); }
+  .readout-time {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(2.25rem, 6vw, 3rem);
+    line-height: 1;
+    margin-block-start: 0.5rem;
+    color: var(--color-background);
+    font-variant-numeric: tabular-nums;
+  }
+  .readout-rel {
+    margin-block-start: 0.5rem;
+    font-size: 0.9rem;
+    color: color-mix(in srgb, var(--color-background) 72%, transparent);
+  }
+
+  .daytoggle { display: flex; gap: 0.75rem; margin-block-start: 1.5rem; }
+  .dayopt {
+    flex: 1 1 0;
+    font-family: var(--font-heading);
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.6rem 0.75rem;
+    border: 2px solid var(--color-border);
+    background: transparent;
+    color: var(--color-foreground);
+    cursor: pointer;
+    transition: background 140ms var(--ease-settle), color 140ms var(--ease-settle);
+  }
+  .dayopt[aria-pressed="true"] {
+    background: var(--color-foreground);
+    color: var(--color-background);
+  }
+
+  /* The primary action of the draft screen: ink, with terracotta underneath. */
+  .btn-ink {
+    background: var(--color-foreground);
+    color: var(--color-background);
+    box-shadow: var(--shadow-warm);
+  }
+  .btn-ink:hover { translate: 6px 6px; box-shadow: 0 0 0 0 var(--color-urgent); }
+
+  .boardspace { display: grid; min-height: 26rem; align-content: center; }
+  .boardempty {
+    border: 3px dashed var(--color-ink-faint);
+    padding: 3rem 2rem;
+    text-align: center;
+    display: grid;
+    justify-items: center;
+  }
+
+  .dropped-time {
+    font-family: var(--font-heading);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 7vw, 3.5rem);
+    line-height: 0.95;
+    margin-block-start: 0.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+  .dropped-rel {
+    font-family: var(--font-heading);
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-urgent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    /* A notice that has just been put up overshoots and settles, the way paper
+       does when it is pushed onto a pin. Translate and opacity only: `rotate`
+       belongs to the drag system and nothing else may touch it. */
+    .dropped { animation: drop-in 560ms var(--ease-settle) backwards; }
+    @keyframes drop-in {
+      from { translate: 0 -36px; opacity: 0; }
+      60%  { translate: 0 6px;   opacity: 1; }
+      to   { translate: 0 0;     opacity: 1; }
+    }
   }
 
   /* --- the one authored entrance ------------------------------------------ */

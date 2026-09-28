@@ -5,6 +5,7 @@ import {
   PlayingCards,
   Tiffin,
 } from "@/components/Illustrations";
+import { CallAMehfil } from "@/components/CallAMehfil";
 import { CyclingWord } from "@/components/CyclingWord";
 import { Pin } from "@/components/Pin";
 import { SessionNotice } from "@/components/SessionNotice";
@@ -14,7 +15,7 @@ import { WaitlistForm } from "@/components/WaitlistForm";
 
 /* The hero word cycles because the product is not about any one of these.
    Chalein is the universal case: shall we go. */
-const HERO_WORDS = ["Chai", "Cards", "Dinner", "Sutta", "Chalein"] as const;
+const HERO_WORDS = ["Chalein", "Chai", "Cards", "Dinner", "Sutta"] as const;
 
 const RITUALS = [
   {
@@ -22,7 +23,7 @@ const RITUALS = [
     span: "ritual-wide",
     art: <ChaiGlass />,
     title: "Chai",
-    body: "The eleven o'clock. The four o'clock. The one that was going to be ten minutes and turns into an hour. This is the whole reason the thing exists.",
+    body: "The eleven o'clock. The four o'clock. The one that was going to be ten minutes and turns into an hour. It is the most common mehfil, not the only one.",
   },
   {
     key: "break",
@@ -94,7 +95,7 @@ export default function Home() {
               >
                 <CyclingWord
                   words={HERO_WORDS}
-                  label="Chai, cards, dinner, or shall we just go"
+                  label="Shall we go? Chai, cards, dinner, whatever it is"
                 />
                 <span aria-hidden="true">?</span>
               </h1>
@@ -126,10 +127,8 @@ export default function Home() {
             What goes up on the board
           </h2>
           <p className="mb-12 max-w-[62ch] text-[1.125rem] text-(--color-foreground-muted)">
-            Chai is a mehfil. So is cards. So is dinner in ten minutes, and so
-            is five minutes outside. Mehfil has no opinion about the occasion.
-            It has one opinion about who is coming and when, and the notice is
-            identical every time.
+            Chai is a mehfil. So is cards, so is dinner in ten minutes, so is
+            five minutes outside. The occasion changes and the notice does not.
           </p>
 
           <div className="rituals">
@@ -167,14 +166,11 @@ export default function Home() {
                   fails, so Mehfil will not do it.
                 </p>
                 <p>
-                  A group has exactly one current session. Not by convention,
-                  and not because the screen only shows one: the database
-                  refuses to accept a second while the first is still standing.
-                  When its time arrives, the board is free again.
-                </p>
-                <p>
-                  There is nothing to compare, nothing to vote on, and nothing
-                  to negotiate. One question, two answers.
+                  A group gets exactly one current session. Not by convention,
+                  and not because the screen only shows one: the constraint is
+                  specified in the database rather than the interface, so a
+                  second cannot be accepted while the first is standing. When
+                  its time arrives, the board is free again.
                 </p>
               </div>
             </div>
@@ -214,6 +210,21 @@ export default function Home() {
           </div>
         </section>
 
+        {/* ========== 3b. CALL A MEHFIL ========== */}
+        <section className="py-36" aria-labelledby="call-h">
+          <h2
+            id="call-h"
+            className="mb-12 max-w-[13ch] text-[clamp(2rem,5.5vw,3.25rem)]"
+          >
+            Call one yourself
+          </h2>
+          <p className="mb-12 max-w-[62ch] text-[1.125rem] text-(--color-foreground-muted)">
+            This is the whole creation flow, working. Pick a time, say what it
+            is for, put it up. Then try to put up a second one.
+          </p>
+          <CallAMehfil />
+        </section>
+
         {/* ========== 4. THE CODE ========== */}
         <section className="py-36" aria-labelledby="code-h">
           <article
@@ -244,10 +255,6 @@ export default function Home() {
           >
             Three things, then never again
           </h2>
-          <p className="mb-12 max-w-[62ch] text-[1.125rem] text-(--color-foreground-muted)">
-            The setup happens once. After that the whole product is two taps.
-          </p>
-
           <div className="grid gap-8 lg:grid-cols-3">
             {STEPS.map((step) => (
               <article
@@ -274,8 +281,8 @@ export default function Home() {
               Pin your email to the board
             </h2>
             <p className="mx-auto mt-6 max-w-[54ch] text-[1.125rem] text-(--color-foreground-muted)">
-              Mehfil is being built in the open, slowly, by one person. No
-              launch date, no countdown, and no newsletter.
+              Mehfil is being built slowly and is not finished. No launch
+              date, no countdown, and no newsletter.
             </p>
 
             <WaitlistForm />
@@ -309,7 +316,8 @@ export default function Home() {
             >
               Verastack Labs
             </a>
-            . A progressive web app, so there is no app store and no store fee.
+            . Mehfil will be a progressive web app, so there is no app store
+            and no store fee.
           </p>
         </div>
       </footer>

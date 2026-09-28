@@ -76,7 +76,6 @@ export function WaitlistForm() {
             autoComplete="email"
             placeholder="you@example.com"
             aria-invalid={invalid}
-            aria-describedby="formmsg"
             value={value}
             onChange={(event) => {
               setValue(event.target.value);
@@ -92,6 +91,10 @@ export function WaitlistForm() {
           {busy ? "Pinning" : "Pin it"}
         </button>
       </form>
+      <p className="mt-3 text-[0.85rem] text-(--color-foreground-muted)">
+        The waitlist is not live yet, so this sends nothing and stores nothing.
+        Said here rather than after you type.
+      </p>
       <p className="formmsg" id="formmsg" data-tone={tone} role="status" aria-live="polite">
         {message}
       </p>

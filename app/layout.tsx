@@ -26,9 +26,15 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Mehfil",
     description:
-      "Chai in fifteen? One notice, two answers, and a list of who is actually coming.",
+      "Call a mehfil. One time, two answers, and a live list of who is actually coming.",
     url: "https://verastack-labs.github.io/mehfil/",
     type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Mehfil",
+    description:
+      "Call a mehfil. One time, two answers, and a live list of who is actually coming.",
   },
 };
 
@@ -56,9 +62,10 @@ const DIRECTION_CONTRACT = `<!--
   STORY: The visitor recognises the dead "chai?" message, sees one working
   notice fill with real names, understands that one notice is the whole idea,
   and pins their email.
-  FIRST VIEWPORT: Brand plate top-left. Left, the word CHAI? at display scale
-  over one paragraph and two buttons. Right, a live session notice with working
-  RSVP, labelled as a demonstration. Primary action sits under the hook.
+  FIRST VIEWPORT: Brand plate top-left. Left, a cycling word at display scale
+  over one paragraph and two buttons; it opens on CHALEIN, never on CHAI, since
+  a static chai headline argued against the brand. Right, a live session notice
+  with working RSVP, labelled as a demonstration. Primary action under the hook.
   FORM: Notice board, position 6 of 7 on the resonance list, external roll,
   seed key 6a7e3276.
   FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md

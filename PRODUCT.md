@@ -8,12 +8,19 @@ web
 
 ## Stack
 
-Delegated. Plain static HTML and CSS with hand-authored inline SVG, no build step
-and no framework. Chosen because this repo is served by GitHub Pages at
-`verastack-labs.github.io/mehfil`, where a static file deploys with zero
-configuration, and because a landing page that needs a toolchain acquires
-dependency drift it never repays. The product app itself is a separate Next.js
-repo (`mehfil-app`); this repo mirrors its design tokens by value, not by import.
+Next.js with `output: "export"`, React, Tailwind v4 and TypeScript, deployed as
+static files to GitHub Pages under a `/mehfil` base path.
+
+This began as plain static HTML on the reasoning that a one-page marketing site
+does not repay a toolchain. The owner corrected it, and was right: TypeScript
+was a stated requirement, React component libraries were named as a source of
+ideas and cannot be used from static HTML, and the product app (`mehfil-app`) is
+already Next.js, so the landing page now shares its idiom and its design tokens
+rather than restating them in a parallel dialect.
+
+The app repo is private and this one is public, so the shared `@theme` block is
+copied verbatim rather than imported, and `scripts/check-tokens.mjs` fails on any
+difference when both repos are checked out side by side.
 
 ## Users
 
@@ -81,6 +88,13 @@ Confirmed and specified, though not yet built:
   tone and outfit colour, not uploaded images.
 - Delivered as a PWA rather than a native app, specifically to avoid Apple's USD
   99 per year and Google Play's USD 25 store fees.
+- **Permissions.** Any member of a group can create a session, not only its
+  creator: that is the point of the product and is specified in the data layer's
+  insert policy. Admin covers only the group as an object, namely renaming it,
+  regenerating the invite code, removing a member, promoting or demoting another
+  admin, and deleting the group. An admin may also cancel someone else's session.
+  The last admin cannot leave without promoting somebody first. Source:
+  `mehfil-internal/docs/specs/2026-07-27-mehfil-supabase-schema-design.md`.
 
 Undecided, and not to be invented: launch date, pricing (the intent is free at MVP
 scale, but no commercial commitment has been made), and group size limits.

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 
 /**
  * A notice you can grab and swing.
@@ -39,6 +39,20 @@ export function SwingNotice({
 }) {
   const ref = useRef<HTMLElement>(null);
 
+  /* Both the breakpoint and the motion preference were read once at mount, so
+     resizing across 640px or toggling the OS setting left the drag armed or
+     disarmed until a reload. This re-runs the effect when either changes. */
+  const [armed, setArmed] = useState(0);
+  useEffect(() => {
+    const queries = [
+      window.matchMedia("(max-width: 640px)"),
+      window.matchMedia("(prefers-reduced-motion: reduce)"),
+    ];
+    const bump = () => setArmed((n) => n + 1);
+    queries.forEach((q) => q.addEventListener("change", bump));
+    return () => queries.forEach((q) => q.removeEventListener("change", bump));
+  }, []);
+
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
@@ -48,6 +62,7 @@ export function SwingNotice({
     ).matches;
     const coarse = window.matchMedia("(max-width: 640px)").matches;
     if (coarse) return;
+
 
     let angle = tilt;
     let velocity = 0;
@@ -156,7 +171,7 @@ export function SwingNotice({
       el.removeEventListener("pointerup", onUp);
       el.removeEventListener("pointercancel", onUp);
     };
-  }, [tilt, pinLeft]);
+  }, [tilt, pinLeft, armed]);
 
   return (
     <Tag
