@@ -13,6 +13,13 @@ import { SwingNotice } from "./SwingNotice";
  * The notice is identical every time and only the occasion changes, which is
  * precisely the claim the page is making.
  *
+ * The headline on the notice stays a static "Mehfil". It briefly animated the
+ * occasion letter by letter, which duplicated the hero's animation a few
+ * hundred pixels away and made the first viewport twitchy: two things moving
+ * in the same way at the same time compete rather than reinforce. The occasion
+ * now sits quietly in the header line beside the group, where it still informs
+ * without demanding anything.
+ *
  * Everyone named here is invented and the notice says so in the markup. No
  * real session has ever existed, PRODUCT.md records that the app is unbuilt,
  * and implying otherwise would be the easiest lie available on this page.
@@ -150,25 +157,14 @@ export function SessionNotice() {
       <Pin />
 
       <header className="session-top">
-        <span className="label">{session.group}</span>
+        <span className="label">
+          {session.group} &middot; {session.what}
+        </span>
         <span className="stamp stamp-live">On the board</span>
       </header>
 
       <div className="session-body">
-        <p className="session-what">
-          <span className="sr-only">{session.what}</span>
-          <span className="cycle" aria-hidden="true">
-            {Array.from(session.what).map((letter, position) => (
-              <span
-                key={`${index}-${position}`}
-                className="cycle-letter"
-                style={{ animationDelay: `${position * 45}ms` }}
-              >
-                {letter}
-              </span>
-            ))}
-          </span>
-        </p>
+        <p className="session-what">Mehfil</p>
 
         <p className="session-when">
           <span>{clock}</span>

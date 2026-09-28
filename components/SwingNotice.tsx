@@ -64,9 +64,16 @@ export function SwingNotice({
       };
     };
 
+    /* The angle of the pointer about the pin, in CSS degrees.
+       The leading minus sign is load-bearing. Screen coordinates put y
+       downwards, so a positive CSS rotation is clockwise, and clockwise about
+       a pin above the notice carries the bottom of it to the LEFT: think of a
+       clock hand at 6 moving toward 7. Dragging right therefore needs a
+       negative angle, and without the negation every notice swings away from
+       the cursor instead of following it. */
     const angleTo = (ev: PointerEvent) => {
       const p = pivot();
-      return Math.atan2(ev.clientX - p.x, ev.clientY - p.y) * (180 / Math.PI);
+      return -Math.atan2(ev.clientX - p.x, ev.clientY - p.y) * (180 / Math.PI);
     };
 
     const apply = () => {
