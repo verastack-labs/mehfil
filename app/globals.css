@@ -6,7 +6,9 @@
    Everything between this banner and the next one is copied VERBATIM from
    mehfil-app/app/globals.css, which is the single source of truth for the
    Mehfil design system and where contrast is verified mechanically by
-   scripts/check-contrast.mjs.
+   mehfil-app/scripts/check-contrast.mjs. That contrast gate does NOT exist in
+   this repo; the only gate here is scripts/check-tokens.mjs, which diffs this
+   block against the app's and checks nothing else.
 
    It is duplicated rather than imported because the app repo is private and
    this one is public, so a submodule would leak it and a published package is
