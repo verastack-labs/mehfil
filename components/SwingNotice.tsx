@@ -1,26 +1,51 @@
 "use client";
 
-import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 
 /**
  * A notice you can grab and swing.
  *
  * The board's premise is paper held at a single point, so the notices behave
  * like it: drag one and it rotates about its pin, let go and it settles on a
- * damped spring rather than snapping back. This is the page's signature
- * interaction and the reason the form was chosen, so it is built rather than
- * imitated with a CSS transition.
+ * damped spring rather than snapping back.
  *
- * It degrades in three directions. Without JavaScript the notice renders at
- * its resting tilt and reads normally. Under `prefers-reduced-motion` the
- * spring is skipped and the notice returns to rest immediately. On coarse
- * pointers it does not engage at all, because hijacking touch drags on a phone
- * costs scrolling and buys nothing.
+ * Three things here exist because the naive version stuttered:
+ *
+ * 1. **The pivot is frozen at grab time.** It used to be recomputed from
+ *    `getBoundingClientRect()` on every move, but a rotating element has a
+ *    changing bounding box, so the pivot moved, which changed the angle, which
+ *    moved the pivot. A feedback loop, and it read as jitter.
+ *
+ * 2. **The vertical distance is floored.** The angle is measured from the pin
+ *    downwards, so as the pointer rises toward the pin that distance tends to
+ *    zero, the angle swings wildly and then flips sign as it crosses. Flooring
+ *    it means dragging upward simply saturates at the clamp instead of
+ *    snapping around.
+ *
+ * 3. **Pointer events set a target; a frame loop chases it.** `pointermove`
+ *    fires more often than the screen refreshes, so writing the rotation
+ *    directly from the event both wasted work and surfaced input noise. Moves
+ *    now only record where the pointer is, and one rAF loop eases toward it and
+ *    writes once per frame. The same loop carries on into the release spring,
+ *    so there is no handover.
+ *
+ * It degrades in three directions. Without JavaScript the notice renders at its
+ * resting tilt and reads normally. Under `prefers-reduced-motion` the release
+ * spring is skipped. On coarse pointers it does not engage at all, because
+ * hijacking touch drags on a phone costs scrolling and buys nothing.
  */
 
-const SPRING = 0.055; // pull back toward rest
-const DAMPING = 0.86; // velocity retained per frame
+const SPRING = 0.055; // pull back toward rest, on release
+const DAMPING = 0.86; // velocity retained per frame, on release
+const CHASE = 0.3; // how fast the notice eases toward the pointer while held
 const MAX_ANGLE = 14; // degrees either side of rest
+const MIN_DY = 60; // never measure the angle from closer than this to the pin
 
 export function SwingNotice({
   children,
@@ -60,48 +85,53 @@ export function SwingNotice({
     const reduceMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)",
     ).matches;
-    const coarse = window.matchMedia("(max-width: 640px)").matches;
-    if (coarse) return;
-
+    if (window.matchMedia("(max-width: 640px)").matches) return;
 
     let angle = tilt;
+    let target = tilt;
     let velocity = 0;
     let dragging = false;
     let pointerId: number | null = null;
-    let grabAngle = 0;
+    let grabOffset = 0;
     let raf: number | null = null;
 
-    const pivot = () => {
-      const r = el.getBoundingClientRect();
-      return {
-        x: pinLeft ? r.left + 32 : r.left + r.width / 2,
-        y: r.top - 10,
-      };
-    };
-
-    /* The angle of the pointer about the pin, in CSS degrees.
-       The leading minus sign is load-bearing. Screen coordinates put y
-       downwards, so a positive CSS rotation is clockwise, and clockwise about
-       a pin above the notice carries the bottom of it to the LEFT: think of a
-       clock hand at 6 moving toward 7. Dragging right therefore needs a
-       negative angle, and without the negation every notice swings away from
-       the cursor instead of following it. */
-    const angleTo = (ev: PointerEvent) => {
-      const p = pivot();
-      return -Math.atan2(ev.clientX - p.x, ev.clientY - p.y) * (180 / Math.PI);
-    };
+    // Frozen at grab time, in client coordinates. See note 1 above.
+    let pivotX = 0;
+    let pivotY = 0;
 
     const apply = () => {
       el.style.rotate = `${angle.toFixed(2)}deg`;
     };
 
-    const settle = () => {
+    /** Angle of the pointer about the frozen pin, in CSS degrees.
+     *
+     * The leading minus sign is load-bearing. Screen coordinates put y
+     * downwards, so a positive CSS rotation is clockwise, and clockwise about a
+     * pin above the notice carries its bottom to the LEFT: a clock hand at 6
+     * moving toward 7. Dragging right therefore needs a negative angle. */
+    const angleFrom = (ev: PointerEvent) => {
+      const dx = ev.clientX - pivotX;
+      const dy = Math.max(MIN_DY, ev.clientY - pivotY);
+      return -Math.atan2(dx, dy) * (180 / Math.PI);
+    };
+
+    const frame = () => {
+      if (dragging) {
+        const previous = angle;
+        angle += (target - angle) * CHASE;
+        velocity = angle - previous;
+        apply();
+        raf = requestAnimationFrame(frame);
+        return;
+      }
+
       velocity += (tilt - angle) * SPRING;
       velocity *= DAMPING;
       angle += velocity;
       apply();
+
       if (Math.abs(velocity) > 0.01 || Math.abs(angle - tilt) > 0.01) {
-        raf = requestAnimationFrame(settle);
+        raf = requestAnimationFrame(frame);
       } else {
         angle = tilt;
         el.style.rotate = "";
@@ -109,40 +139,47 @@ export function SwingNotice({
       }
     };
 
+    const startLoop = () => {
+      if (raf === null) raf = requestAnimationFrame(frame);
+    };
+
     const onDown = (ev: PointerEvent) => {
       // Real controls inside a notice keep their own behaviour.
       if ((ev.target as HTMLElement).closest("button, a, input")) return;
+
+      const r = el.getBoundingClientRect();
+      pivotX = pinLeft ? r.left + 32 : r.left + r.width / 2;
+      pivotY = r.top - 10;
+
       dragging = true;
       pointerId = ev.pointerId;
-      grabAngle = angleTo(ev) - angle;
-      if (raf) {
-        cancelAnimationFrame(raf);
-        raf = null;
-      }
+      grabOffset = angleFrom(ev) - angle;
+      target = angle;
+
       el.classList.add("is-dragging");
       // Can throw if the pointer was released between the browser dispatching
-      // this event and us handling it. The drag still works without capture;
-      // it just stops tracking once the pointer leaves the element.
+      // this event and us handling it. The drag still works without capture; it
+      // just stops tracking once the pointer leaves the element.
       try {
         el.setPointerCapture(pointerId);
       } catch {
         /* not fatal */
       }
+      startLoop();
     };
 
     const onMove = (ev: PointerEvent) => {
       if (!dragging || ev.pointerId !== pointerId) return;
-      const next = angleTo(ev) - grabAngle;
-      const previous = angle;
-      angle = Math.max(tilt - MAX_ANGLE, Math.min(tilt + MAX_ANGLE, next));
-      velocity = angle - previous;
-      apply();
+      // Record only. The frame loop owns the rotation. See note 3 above.
+      const next = angleFrom(ev) - grabOffset;
+      target = Math.max(tilt - MAX_ANGLE, Math.min(tilt + MAX_ANGLE, next));
     };
 
     const onUp = (ev: PointerEvent) => {
       if (!dragging || ev.pointerId !== pointerId) return;
       dragging = false;
       el.classList.remove("is-dragging");
+
       try {
         if (pointerId !== null && el.hasPointerCapture(pointerId)) {
           el.releasePointerCapture(pointerId);
@@ -151,12 +188,16 @@ export function SwingNotice({
         /* the pointer is already gone, which is the outcome we wanted */
       }
       pointerId = null;
+
       if (reduceMotion) {
+        if (raf !== null) cancelAnimationFrame(raf);
+        raf = null;
         angle = tilt;
         el.style.rotate = "";
         return;
       }
-      raf = requestAnimationFrame(settle);
+      // The loop is already running; it falls through to the spring branch.
+      startLoop();
     };
 
     el.addEventListener("pointerdown", onDown);
@@ -165,7 +206,7 @@ export function SwingNotice({
     el.addEventListener("pointercancel", onUp);
 
     return () => {
-      if (raf) cancelAnimationFrame(raf);
+      if (raf !== null) cancelAnimationFrame(raf);
       el.removeEventListener("pointerdown", onDown);
       el.removeEventListener("pointermove", onMove);
       el.removeEventListener("pointerup", onUp);

@@ -300,14 +300,22 @@
 
   /* --- session notice ----------------------------------------------------- */
 
+  /* Colour here follows the project's own draft screens: a dark header bar,
+     a dark session block with a saffron label, and saffron fills on the people
+     who have said yes. Paper carries the structure; the insets carry the heat. */
   .session { padding: 0; }
   .session-top {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1.5rem 2rem;
+    padding: 1.25rem 2rem;
+    background: var(--color-foreground);
+    color: var(--color-background);
     border-block-end: 3px solid var(--color-border);
+  }
+  .session-top .label {
+    color: color-mix(in srgb, var(--color-background) 78%, transparent);
   }
   .session-body { padding: 2rem; }
   .session-what {
@@ -318,20 +326,34 @@
     letter-spacing: -0.03em;
     line-height: 0.9;
   }
+  /* The clock sits in an ink inset with a saffron label, the way the draft's
+     session block does it. The countdown is saffron rather than terracotta
+     because terracotta on ink is only 3.4:1, which fails for text this size;
+     saffron on ink is 8.54:1. */
+  .session-clock {
+    margin-block-start: 1.5rem;
+    background: var(--color-foreground);
+    border: 3px solid var(--color-border);
+    padding: 1.25rem 1.5rem;
+  }
+  .session-clock .label { color: var(--color-main); }
   .session-when {
     display: flex;
     align-items: baseline;
-    gap: 1rem;
-    margin-block-start: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-block-start: 0.35rem;
     font-family: var(--font-heading);
-    font-size: 1.5rem;
+    font-size: 1.85rem;
     font-weight: 700;
+    color: var(--color-background);
+    font-variant-numeric: tabular-nums;
   }
   .countdown {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--color-urgent);
+    color: var(--color-main);
     font-variant-numeric: tabular-nums;
   }
 
@@ -348,20 +370,26 @@
     list-style: none;
     padding: 0;
   }
+  /* Saffron fill means "coming", paper means "later". Fill carries the state
+     rather than opacity, so a later row stays perfectly legible instead of
+     being dimmed to 45 percent. */
   .who-list li {
     display: flex;
     align-items: center;
     gap: 0.5rem;
     font-size: 0.9rem;
-    font-weight: 500;
-  }
-  .who-list li.is-you {
-    font-weight: 700;
+    font-weight: 600;
     background: var(--color-main);
     border: 2px solid var(--color-border);
-    padding: 0.1rem 0.5rem 0.1rem 0.15rem;
+    box-shadow: 3px 3px 0 0 var(--color-border);
+    padding: 0.25rem 0.7rem 0.25rem 0.25rem;
   }
-  .who-list li.is-out { opacity: 0.45; }
+  .who-list li.is-out {
+    background: var(--color-secondary-background);
+    color: var(--color-foreground-muted);
+    font-weight: 500;
+  }
+  .who-list li.is-you { outline: 3px solid var(--color-urgent); outline-offset: 2px; }
   .avatar { width: 30px; height: 30px; flex: none; display: block; }
 
   .session-actions {
@@ -492,13 +520,16 @@
     overflow: hidden;
     vertical-align: bottom;
   }
-  .cycle-measure { visibility: hidden; }
+  /* line-height 1, not the h1's 0.95. A letter is translated by its own box
+     height to leave the slot, so a box shorter than the glyph leaves a sliver
+     of the outgoing word visible above the clip. */
+  .cycle-measure { visibility: hidden; line-height: 1; }
   .cycle-layer {
     position: absolute;
     inset: 0;
     display: flex;
   }
-  .cycle-letter { display: inline-block; white-space: pre; }
+  .cycle-letter { display: inline-block; white-space: pre; line-height: 1; }
 
   @media (prefers-reduced-motion: no-preference) {
     .cycle-in .cycle-letter { animation: letter-in 380ms var(--ease-settle) both; }

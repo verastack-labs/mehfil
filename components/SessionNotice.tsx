@@ -136,10 +136,13 @@ export function SessionNotice() {
       <div className="session-body">
         <p className="session-what">Mehfil</p>
 
-        <p className="session-when">
-          <span>{clock}</span>
-          <span className="countdown">{remaining}</span>
-        </p>
+        <div className="session-clock">
+          <span className="label">Starts</span>
+          <p className="session-when">
+            <span>{clock}</span>
+            <span className="countdown">{remaining}</span>
+          </p>
+        </div>
 
         <div className="who">
           <span className="label">Who is in</span>
@@ -164,7 +167,7 @@ export function SessionNotice() {
 
         <div className="session-actions">
           <button
-            className="btn"
+            className="btn btn-primary"
             type="button"
             aria-pressed={answer === "in"}
             onClick={() => choose("in")}
