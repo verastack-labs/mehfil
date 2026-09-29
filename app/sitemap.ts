@@ -14,13 +14,20 @@ import type { MetadataRoute } from "next";
  */
 const SITE = "https://verastack-labs.github.io/mehfil/";
 
+/* Hand-maintained rather than `new Date()`. A build timestamp would move on
+   every deploy, including ones that change nothing on this page, and lastmod
+   is a claim about the content, not about CI. Bump it when the page's copy or
+   structure actually changes; Google discounts the field entirely once it
+   catches you moving it for nothing. */
+const LAST_MODIFIED = "2026-09-30";
+
 export const dynamic = "force-static";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [
     {
       url: SITE,
-      lastModified: new Date(),
+      lastModified: LAST_MODIFIED,
       changeFrequency: "monthly",
       priority: 1,
     },
