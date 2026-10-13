@@ -29,12 +29,25 @@ export const metadata: Metadata = {
       "Call a mehfil. One time, two answers, and a live list of who is actually coming.",
     url: "https://mehfil.verastack.dev/",
     type: "website",
+    /* Points at the .png copies made by scripts/og-filenames.mjs, not at
+       Next's own extensionless /opengraph-image route. GitHub Pages serves an
+       extensionless file as application/octet-stream and every scraper refuses
+       a non-image og:image, so the card rendered nowhere. Observed live. */
+    images: [
+      {
+        url: "/og.png",
+        width: 1200,
+        height: 630,
+        alt: "Mehfil. Call a mehfil, and see who is actually coming.",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "Mehfil",
     description:
       "Call a mehfil. One time, two answers, and a live list of who is actually coming.",
+    images: ["/twitter.png"],
   },
 };
 
