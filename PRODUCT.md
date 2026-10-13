@@ -9,7 +9,7 @@ web
 ## Stack
 
 Next.js with `output: "export"`, React, Tailwind v4 and TypeScript, deployed as
-static files to GitHub Pages under a `/mehfil` base path.
+static files to GitHub Pages, served from https://mehfil.verastack.dev/.
 
 This began as plain static HTML on the reasoning that a one-page marketing site
 does not repay a toolchain. The owner corrected it, and was right: TypeScript

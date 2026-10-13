@@ -3,13 +3,15 @@ import type { NextConfig } from "next";
 /**
  * Static export for GitHub Pages.
  *
- * The site is served from https://verastack-labs.github.io/mehfil/, which is a
- * project page rather than a user page, so everything lives under a `/mehfil`
- * prefix. `basePath` is set unconditionally rather than only in production:
- * a dev server at the root and a deployment under a prefix is exactly how a
- * path bug reaches production undetected. Local dev therefore also runs at
- * http://localhost:3000/mehfil, which is mildly inconvenient and entirely
- * worth it.
+ * The site is served from https://mehfil.verastack.dev/, a dedicated
+ * subdomain, so it sits at the origin root and needs no `basePath`. It used to
+ * be a project page under `/mehfil` and carried a `basePath` to match; that is
+ * gone, and nothing in this repo should reintroduce a path prefix without the
+ * DNS record changing first.
+ *
+ * The subdomain is held by `public/CNAME`, which the export copies into `out/`
+ * verbatim. GitHub Pages reads that file on every deploy, so losing it silently
+ * reverts the site to the default domain.
  *
  * `images.unoptimized` is required because `output: "export"` has no server to
  * run the optimizer. There are no raster images on this site at present, so it
@@ -18,7 +20,6 @@ import type { NextConfig } from "next";
  */
 const nextConfig: NextConfig = {
   output: "export",
-  basePath: "/mehfil",
   images: { unoptimized: true },
   trailingSlash: true,
 };

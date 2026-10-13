@@ -17,7 +17,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://verastack-labs.github.io/mehfil/"),
+  metadataBase: new URL("https://mehfil.verastack.dev/"),
   title: "Mehfil",
   description:
     "Mehfil turns the most ignored question in your group chat into a plan. " +
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     title: "Mehfil",
     description:
       "Call a mehfil. One time, two answers, and a live list of who is actually coming.",
-    url: "https://verastack-labs.github.io/mehfil/",
+    url: "https://mehfil.verastack.dev/",
     type: "website",
   },
   twitter: {
