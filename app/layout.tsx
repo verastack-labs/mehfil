@@ -19,6 +19,13 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL("https://mehfil.verastack.dev/"),
   title: "Mehfil",
+  alternates: {
+    /* Resolved against `metadataBase` above. The emitted href must match the
+       `<loc>` in app/sitemap.ts exactly, trailing slash included, or Search
+       Console reports the two as a mismatch. Verified against out/index.html
+       after a build, not assumed. */
+    canonical: "/",
+  },
   description:
     "Mehfil turns the most ignored question in your group chat into a plan. " +
     "One person proposes a time, everyone taps in or later, and you see who is " +
