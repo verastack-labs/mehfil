@@ -33,7 +33,8 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Mehfil",
     description:
-      "Call a mehfil. One time, two answers, and a live list of who is actually coming.",
+      "Call a mehfil: one time, two answers, and a live list of who is actually " +
+      "coming. No polls, no chasing the group chat, no plan that quietly dies.",
     url: "https://mehfil.verastack.dev/",
     type: "website",
     /* Points at the .png copies made by scripts/og-filenames.mjs, not at
@@ -53,7 +54,8 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Mehfil",
     description:
-      "Call a mehfil. One time, two answers, and a live list of who is actually coming.",
+      "Call a mehfil: one time, two answers, and a live list of who is actually " +
+      "coming. No polls, no chasing the group chat, no plan that quietly dies.",
     images: ["/twitter.png"],
   },
 };
