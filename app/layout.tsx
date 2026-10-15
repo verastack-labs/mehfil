@@ -18,7 +18,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://mehfil.verastack.dev/"),
-  title: "Mehfil",
+  title: "Mehfil - Call a mehfil, see who is actually coming",
   alternates: {
     /* Resolved against `metadataBase` above. The emitted href must match the
        `<loc>` in app/sitemap.ts exactly, trailing slash included, or Search
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     "One person proposes a time, everyone taps in or later, and you see who is " +
     "actually coming.",
   openGraph: {
-    title: "Mehfil",
+    title: "Mehfil - Call a mehfil, see who is actually coming",
     description:
       "Call a mehfil: one time, two answers, and a live list of who is actually " +
       "coming. No polls, no chasing the group chat, no plan that quietly dies.",
@@ -52,7 +52,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Mehfil",
+    title: "Mehfil - Call a mehfil, see who is actually coming",
     description:
       "Call a mehfil: one time, two answers, and a live list of who is actually " +
       "coming. No polls, no chasing the group chat, no plan that quietly dies.",
