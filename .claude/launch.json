@@ -7,6 +7,13 @@
       "runtimeArgs": ["dev", "--port", "3100"],
       "port": 3100,
       "url": "http://localhost:3100"
+    },
+    {
+      "name": "mehfil-export",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "3200", "--directory", "out"],
+      "port": 3200,
+      "url": "http://localhost:3200"
     }
   ]
 }
