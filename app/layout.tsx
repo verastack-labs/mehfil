@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Space_Grotesk, Inter } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -93,6 +94,48 @@ const DIRECTION_CONTRACT = `<!--
   FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
 -->`;
 
+/**
+ * Cloudflare Web Analytics.
+ *
+ * Cookieless and without cross-site identifiers, so it needs no consent
+ * banner and the page stays free of one. The beacon token is a public site
+ * identifier, not a secret: it is visible in the served HTML of every site
+ * that uses this product, and committing it here is how Cloudflare intends it
+ * to be deployed.
+ *
+ * Production only. A dev build would otherwise send every hot reload to the
+ * dashboard as real traffic. `output: "export"` means NODE_ENV is read when
+ * `next build` runs, so this is a build-time decision and the component
+ * simply is not rendered into the export of a non-production build.
+ *
+ * `afterInteractive` keeps the request off the critical path. What that means
+ * for checking the build: the executing <script> tag is injected by the client
+ * runtime after hydration, so it is not in out/index.html. What IS in the
+ * static HTML is a <link rel="preload"> plus the RSC payload describing this
+ * component, so a grep for "cloudflareinsights" finds two hits that prove only
+ * that the component rendered, not that the beacon runs. Verify in a browser.
+ *
+ * `crossOrigin="anonymous"` is not decoration. A type="module" script is always
+ * fetched in CORS mode, while Next emits its preload link without a crossorigin
+ * attribute, so the two requests do not match and the browser throws the
+ * preload away and downloads the file twice ("the request credentials mode does
+ * not match" in the console). The attribute makes them match. It is safe
+ * because the CDN serves `Access-Control-Allow-Origin: *`; verified by curl.
+ */
+function CloudflareAnalytics() {
+  if (process.env.NODE_ENV !== "production") return null;
+
+  return (
+    <Script
+      src="https://static.cloudflareinsights.com/beacon.min.js"
+      strategy="afterInteractive"
+      type="module"
+      crossOrigin="anonymous"
+      data-cf-beacon='{"token": "45b247d40e7348b299c2d31ea90a4071"}'
+    />
+  );
+}
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -107,6 +150,7 @@ export default function RootLayout({
           Skip to content
         </a>
         {children}
+        <CloudflareAnalytics />
       </body>
     </html>
   );
