@@ -1,0 +1,34 @@
+# Mehfil
+
+> Mehfil turns the message that scrolls away in a group chat into one time, two answers, and a live list of who is actually turning up.
+
+Built by VeraStack Labs (https://verastack.dev/). Mehfil will be a progressive web app, so there is no app store and no store fee.
+
+## Status (September 2026)
+
+Being built slowly, and not finished. The design system is built and the database schema is specified, with the first migration written and not yet applied to anything. No screens exist. There is no launch date and no countdown. The notice on the landing page is a working demonstration made for that page, and the four people on it are invented. There are no users to count and no funding to mention. The waitlist is not live yet, so the email field validates but sends nothing anywhere.
+
+## Key pages
+
+- [Home](https://mehfil.verastack.dev/): what Mehfil is, the rituals it is for, how it works, and the waitlist
+- [Asked and answered](https://mehfil.verastack.dev/#faq): the short FAQ
+- [How it works](https://mehfil.verastack.dev/#how): the three steps
+- [Pin your email](https://mehfil.verastack.dev/#waitlist): the waitlist, and where the build actually stands
+- [VeraStack Labs](https://verastack.dev/): the studio behind Mehfil
+- [Source and other projects](https://github.com/verastack-labs): on GitHub
+
+## The idea
+
+A mehfil is a gathering, convened at short notice. Every group chat has the message that asks whether everyone is going, and it scrolls away before anyone answers it. Chai is the most common occasion, but so is cards, dinner in ten minutes, five minutes outside, or somebody who has an auto. The occasion changes and the notice does not.
+
+## How it works
+
+- Start a group. Name it, and Mehfil hands you a code. Anyone holding that code is in, and you can regenerate it the day it ends up somewhere it should not be.
+- Call a mehfil. Fifteen minutes from now, or an exact time tonight. Anyone in the group can call one, not just whoever started it.
+- Watch it fill. In, or later. Everybody sees each answer land as it happens, so nobody has to ask who is coming.
+
+## What makes it different
+
+One notice at a time. Every other tool hands you options: three times to compare, a poll to run, a thread to read back. That is the part that fails, so Mehfil will not do it. A group gets exactly one current session, and not merely because the screen shows one: the constraint is specified in the database rather than the interface, so a second cannot be accepted while the first is standing. When its time arrives, the board is free again.
+
+The whole invite is a code. No email invitations, no directory, and no searching for people you already see every day. The group exists before Mehfil does; it only needs a door. Paste the code into the chat you are already in.

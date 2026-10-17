@@ -12,6 +12,7 @@ import { SessionNotice } from "@/components/SessionNotice";
 import { SwingNotice } from "@/components/SwingNotice";
 import { TearTabs } from "@/components/TearTabs";
 import { WaitlistForm } from "@/components/WaitlistForm";
+import { FAQ, STRUCTURED_DATA } from "./structured-data";
 
 /* The hero word cycles because the product is not about any one of these.
    Chalein is the universal case: shall we go. */
@@ -79,6 +80,14 @@ const STEPS = [
 export default function Home() {
   return (
     <div className="relative">
+      {/* Must be in the served HTML: the AI crawlers this targets do not run
+          JavaScript. dangerouslySetInnerHTML is the only way to emit a raw
+          JSON string inside a script tag; React would otherwise escape it.
+          The content is our own build-time constant, never user input. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }}
+      />
       <main id="main" className="shell">
         {/* ========== 1. THE BOARD ========== */}
         <section className="pt-8 pb-36" aria-labelledby="hook-h">
@@ -272,6 +281,37 @@ export default function Home() {
               </article>
             ))}
           </div>
+        </section>
+
+        {/* ========== 5b. FAQ ========== */}
+        <section className="py-36" id="faq" aria-labelledby="faq-h">
+          <h2
+            id="faq-h"
+            className="mb-12 max-w-[13ch] text-[clamp(2rem,5.5vw,3.25rem)]"
+          >
+            Asked and answered
+          </h2>
+          {/* A dl, because that is what a question and its answer are. The
+              FAQPage markup in app/structured-data.ts quotes this same array,
+              so the two cannot drift apart. */}
+          <dl className="grid gap-8 lg:grid-cols-2">
+            {FAQ.map((entry, i) => (
+              /* A div, not an article. A dl may only contain dt, dd, or a div
+                 grouping them, so an article here would be invalid HTML. */
+              <div
+                key={entry.q}
+                className="notice notice-warm"
+                style={{ ["--tilt" as string]: `${i % 2 ? 0.4 : -0.45}deg` }}
+              >
+                <dt>
+                  <h3 className="text-[1.25rem]">{entry.q}</h3>
+                </dt>
+                <dd className="mt-4 text-[0.98rem] text-(--color-foreground-muted)">
+                  {entry.a}
+                </dd>
+              </div>
+            ))}
+          </dl>
         </section>
 
         {/* ========== 6. WAITLIST ========== */}
