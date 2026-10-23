@@ -4,9 +4,9 @@
 
 Built by VeraStack Labs (https://verastack.dev/). Mehfil will be a progressive web app, so there is no app store and no store fee.
 
-## Status (September 2026)
+## Status (October 2026)
 
-Being built slowly, and not finished. The design system is built and the database schema is specified, with the first migration written and not yet applied to anything. No screens exist. There is no launch date and no countdown. The notice on the landing page is a working demonstration made for that page, and the four people on it are invented. There are no users to count and no funding to mention. The waitlist is not live yet, so the email field validates but sends nothing anywhere.
+Being built slowly, and not finished. The design system is built, and the database is real: five tables with row level security, applied and covered by tests. The first screens exist too, and they work end to end on a developer machine, but nobody can use them yet, because nothing is deployed and sign-in is not connected to Google. There is no launch date and no countdown. The notice on the landing page is a working demonstration made for that page, and the four people on it are invented. There are no users to count and no funding to mention. The waitlist is not live yet, so the email field validates but sends nothing anywhere.
 
 ## Key pages
 

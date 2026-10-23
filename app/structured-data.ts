@@ -64,7 +64,7 @@ export const FAQ: FaqEntry[] = [
   },
   {
     q: "Can I use it yet?",
-    a: "Not yet. Mehfil is being built slowly and is not finished. The design system is built and the database schema is specified, with the first migration written and not yet applied to anything. No screens exist, there is no launch date, and the waitlist itself is not live, so the email field on this page validates but sends nothing anywhere.",
+    a: "Not yet. Mehfil is being built slowly and is not finished. The design system is built, the database is real and covered by tests, and the first screens work end to end on a developer machine. You cannot use them yet: nothing is deployed and sign-in is not connected to Google. There is no launch date, and the waitlist itself is not live, so the email field on this page validates but sends nothing anywhere.",
   },
 ];
 
