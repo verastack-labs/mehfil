@@ -329,15 +329,18 @@ export default function Home() {
 
             <div className="honest">
               <strong className="text-(--color-foreground)">
-                Where this actually stands, September 2026.
+                Where this actually stands, October 2026.
               </strong>{" "}
-              The design system is built and the database schema is specified,
-              with the first migration written and not yet applied to anything.
-              No screens exist. The notice at the top of this page is a working
-              demonstration made for this page, and the four people on it are
-              invented. There are no users to count, no funding to mention, and
-              no date to give you. The waitlist itself is not live yet, so the
-              field above validates but sends nothing anywhere.
+              The design system is built, and the database is real: five tables
+              with row level security, applied and covered by tests. The first
+              screens exist too, and they work end to end on a developer
+              machine. You cannot use them yet. Nothing is deployed, and
+              sign-in is not connected to Google. The notice at the top of this
+              page is a working demonstration made for this page, and the four
+              people on it are invented. There are no users to count, no
+              funding to mention, and no date to give you. The waitlist itself
+              is not live yet, so the field above validates but sends nothing
+              anywhere.
             </div>
           </div>
         </section>
